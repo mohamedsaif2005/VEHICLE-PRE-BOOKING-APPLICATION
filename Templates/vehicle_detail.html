@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ vehicle.make }} {{ vehicle.model }} - Vehicle Booking System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('vehicles') }}">Vehicles</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ vehicle.make }} {{ vehicle.model }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h1 class="card-title mb-3">{{ vehicle.make }} {{ vehicle.model }} ({{ vehicle.year }})</h1>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <span class="badge bg-secondary me-2">{{ vehicle.vehicle_type|capitalize }}</span>
+                            {% if vehicle.is_available %}
+                            <span class="badge bg-success">Available</span>
+                            {% else %}
+                            <span class="badge bg-danger">Not Available</span>
+                            {% endif %}
+                        </div>
+                        <span class="fs-3 fw-bold text-primary">${{ vehicle.daily_rate }}<small class="fs-6 fw-normal">/day</small></span>
+                    </div>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6 col-md-4">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-palette fa-2x me-2 text-secondary"></i>
+                                <div>
+                                    <div class="text-muted small">Color</div>
+                                    <div>{{ vehicle.color }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-users fa-2x me-2 text-secondary"></i>
+                                <div>
+                                    <div class="text-muted small">Capacity</div>
+                                    <div>{{ vehicle.capacity }} persons</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-id-card fa-2x me-2 text-secondary"></i>
+                                <div>
+                                    <div class="text-muted small">License Plate</div>
+                                    <div>{{ vehicle.license_plate }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mt-4 mb-3">Description</h5>
+                    <p>{{ vehicle.description or 'No description available.' }}</p>
+                    
+                    {% if vehicle.features %}
+                    <h5 class="mt-4 mb-3">Features</h5>
+                    <div class="vehicle-features">
+                        {% for feature in vehicle.features.split(',') %}
+                        <span class="vehicle-feature">{{ feature.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Booking Information</h5>
+                    
+                    {% if vehicle.is_available %}
+                        <p class="text-success mb-4"><i class="fas fa-check-circle me-2"></i> Available for booking</p>
+                        
+                        {% if current_user.is_authenticated %}
+                        <div class="d-grid">
+                            <a href="{{ url_for('book_vehicle', vehicle_id=vehicle.id) }}" class="btn btn-primary btn-lg">Book Now</a>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            <p class="mb-2">You need to be logged in to book a vehicle.</p>
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+                                <a href="{{ url_for('register') }}" class="btn btn-outline-secondary">Register</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-danger">
+                            <p class="mb-0">This vehicle is currently not available for booking.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Rental Information</h5>
+                    
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-info-circle me-2 text-primary"></i> Daily rate: ${{ vehicle.daily_rate }}</li>
+                        <li class="mb-2"><i class="fas fa-info-circle me-2 text-primary"></i> 10% discount for 7+ days</li>
+                        <li class="mb-2"><i class="fas fa-info-circle me-2 text-primary"></i> 20% discount for 30+ days</li>
+                        <li class="mb-2"><i class="fas fa-info-circle me-2 text-primary"></i> Full insurance included</li>
+                        <li class="mb-2"><i class="fas fa-info-circle me-2 text-primary"></i> 24/7 roadside assistance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

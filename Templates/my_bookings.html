@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings - Vehicle Booking System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">My Bookings</h1>
+    
+    {% if bookings %}
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Vehicle</th>
+                            <th>Dates</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td>#{{ booking.id }}</td>
+                            <td>
+                                <a href="{{ url_for('vehicle_detail', vehicle_id=booking.vehicle.id) }}">
+                                    {{ booking.vehicle.make }} {{ booking.vehicle.model }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ booking.start_date.strftime('%b %d, %Y') }} to {{ booking.end_date.strftime('%b %d, %Y') }}
+                                <div class="small text-muted">{{ (booking.end_date - booking.start_date).days + 1 }} days</div>
+                            </td>
+                            <td>${{ booking.total_price }}</td>
+                            <td>
+                                <span class="badge status-{{ booking.status }}">{{ booking.status|capitalize }}</span>
+                            </td>
+                            <td>
+                                {% if booking.status in ['pending', 'confirmed'] %}
+                                <button class="btn btn-sm btn-danger cancel-booking-btn" data-booking-id="{{ booking.id }}">
+                                    Cancel
+                                </button>
+                                <form id="cancel-form-{{ booking.id }}" action="{{ url_for('cancel_booking', booking_id=booking.id) }}" method="POST" style="display: none;"></form>
+                                {% else %}
+                                <button class="btn btn-sm btn-secondary" disabled>{{ booking.status|capitalize }}</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Booking Status Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <span class="badge status-pending me-2">Pending</span>
+                            Your booking is waiting for confirmation.
+                        </li>
+                        <li class="mb-2">
+                            <span class="badge status-confirmed me-2">Confirmed</span>
+                            Your booking has been confirmed and is active.
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <span class="badge status-completed me-2">Completed</span>
+                            Your booking period has ended successfully.
+                        </li>
+                        <li class="mb-2">
+                            <span class="badge status-cancelled me-2">Cancelled</span>
+                            Your booking has been cancelled.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <h4 class="alert-heading">No bookings found</h4>
+        <p>You haven't made any bookings yet.</p>
+        <hr>
+        <div class="d-grid gap-2 d-md-flex">
+            <a href="{{ url_for('vehicles') }}" class="btn btn-primary">Browse Vehicles</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

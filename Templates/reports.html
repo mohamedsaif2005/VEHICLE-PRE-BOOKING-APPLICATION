@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking Reports - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Booking Reports</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">Booking Reports</h1>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Booking Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-sm-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title text-muted">Monthly Bookings</h6>
+                                    <h2 class="display-4 fw-bold text-primary">{{ monthly_bookings }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title text-muted">Monthly Revenue</h6>
+                                    <h2 class="display-4 fw-bold text-success">${{ monthly_revenue }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Booking Status</h5>
+                </div>
+                <div class="card-body">
+                    <div id="statusData" data-status-counts='{"pending": {{ pending_count }}, "confirmed": {{ confirmed_count }}, "completed": {{ completed_count }}, "cancelled": {{ cancelled_count }}}' style="display: none;"></div>
+                    <canvas id="bookingStatusChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Most Booked Vehicles</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Vehicle</th>
+                            <th>Total Bookings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vehicle in vehicle_bookings %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ vehicle.make }} {{ vehicle.model }}</td>
+                            <td>{{ vehicle.booking_count }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not vehicle_bookings %}
+                        <tr>
+                            <td colspan="3" class="text-center">No booking data available yet</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Booking Status Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Count</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge status-pending">Pending</span></td>
+                                    <td>{{ pending_count }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin_bookings', status='pending') }}" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge status-confirmed">Confirmed</span></td>
+                                    <td>{{ confirmed_count }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin_bookings', status='confirmed') }}" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge status-completed">Completed</span></td>
+                                    <td>{{ completed_count }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin_bookings', status='completed') }}" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge status-cancelled">Cancelled</span></td>
+                                    <td>{{ cancelled_count }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin_bookings', status='cancelled') }}" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-3">
+                        <a href="{{ url_for('admin_vehicles') }}" class="btn btn-primary">
+                            <i class="fas fa-car me-2"></i> Manage Vehicles
+                        </a>
+                        <a href="{{ url_for('admin_bookings', status='pending') }}" class="btn btn-warning">
+                            <i class="fas fa-clock me-2"></i> Review Pending Bookings
+                        </a>
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-info">
+                            <i class="fas fa-tachometer-alt me-2"></i> Return to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
